@@ -1,0 +1,13 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Backups exported from the app may contain personal expense data
+hostel-hisab-backup.json
+*.local.json
+
+# Logs / misc
+*.log
+node_modules/

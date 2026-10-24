@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hostel Hisab — Roommate &amp; Mess Expense Splitter</title>
+  <meta name="description" content="Offline-first monthly hisab for hostel rooms and PGs: split rent, bijli, doodh and mess, and settle up with UPI links. No sign-up, no server — your data never leaves your phone.">
+  <meta name="theme-color" content="#b34724">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <h1>Hostel <span class="rupee">Hisab</span> ₹</h1>
+    <p>Monthly kharcha for your room, PG or hostel mess — rent, bijli, doodh, khana —
+       split fairly, settled in the fewest UPI payments. No login. Works offline.</p>
+    <p class="chai-note">Ek chai kam, hisab saaf. ☕</p>
+  </header>
+
+  <main>
+    <!-- Members -->
+    <section class="card" aria-labelledby="members-h">
+      <h2 id="members-h">Roommates</h2>
+      <ul class="clean" id="member-list"></ul>
+      <p class="empty" id="member-empty">No roommates yet. Add the people you share the room / mess with.</p>
+      <form id="member-form">
+        <div class="row2">
+          <div class="field">
+            <label for="member-name">Name</label>
+            <input type="text" id="member-name" required autocomplete="off" placeholder="e.g. Aarav">
+          </div>
+          <div class="field">
+            <label for="member-upi">UPI ID <small>(optional, for payment links)</small></label>
+            <input type="text" id="member-upi" autocomplete="off" placeholder="e.g. aarav@okhdfcbank">
+          </div>
+        </div>
+        <button class="btn" type="submit">Add roommate</button>
+      </form>
+    </section>
+
+    <!-- Add expense -->
+    <section class="card" aria-labelledby="add-h">
+      <h2 id="add-h">Add an expense</h2>
+      <form id="expense-form">
+        <div class="field">
+          <label for="exp-title">What was it for?</label>
+          <input type="text" id="exp-title" required autocomplete="off" placeholder="e.g. October bijli bill">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="exp-amount">Amount (₹)</label>
+            <input type="number" id="exp-amount" required min="0.01" step="0.01" inputmode="decimal" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label for="exp-date">Date</label>
+            <input type="date" id="exp-date" required>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="exp-payer">Paid by</label>
+            <select id="exp-payer" required></select>
+          </div>
+          <div class="field">
+            <label for="exp-category">Category</label>
+            <select id="exp-category">
+              <option>Rent</option>
+              <option>Bijli / Electricity</option>
+              <option>Doodh / Milk</option>
+              <option>Khana / Mess</option>
+              <option>Safai</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend>Split between</legend>
+          <div class="field">
+            <label for="split-mode">Split mode</label>
+            <select id="split-mode">
+              <option value="equal">Equally</option>
+              <option value="custom">Custom / unequal amounts</option>
+            </select>
+          </div>
+          <div id="split-list"></div>
+          <p class="muted" id="split-hint">Tick who shares this expense. In custom mode, type each person's share — the shares must add up to the amount.</p>
+        </fieldset>
+
+        <button class="btn" type="submit">Add expense</button>
+        <p class="status" id="expense-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Expenses -->
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Expenses</h2>
+      <div class="field">
+        <label for="month-filter">Month</label>
+        <input type="month" id="month-filter">
+      </div>
+      <div class="total-bar"><span id="month-label">This month</span><span id="month-total">₹0</span></div>
+      <ul class="clean" id="expense-list"></ul>
+      <p class="empty" id="expense-empty">No expenses for this month yet.</p>
+    </section>
+
+    <!-- Balances & settlement -->
+    <section class="card" aria-labelledby="settle-h">
+      <h2 id="settle-h">Who owes whom?</h2>
+      <p class="muted">Balances for the selected month. We simplify the debts so the
+         whole room settles in the <strong>fewest possible payments</strong>.</p>
+      <ul class="clean" id="balance-list"></ul>
+      <h3>Settle up</h3>
+      <ul class="clean" id="settle-list"></ul>
+      <p class="empty" id="settle-empty">Sab hisab barabar — nobody owes anything. 🎉</p>
+
+      <h3>WhatsApp settlement message</h3>
+      <label class="visually-hidden" for="wa-message">WhatsApp-ready settlement message</label>
+      <textarea id="wa-message" readonly></textarea>
+      <div class="btn-row">
+        <button class="btn" id="copy-message" type="button">Copy message</button>
+        <a class="btn secondary" id="wa-open" href="#" target="_blank" rel="noopener">Open in WhatsApp</a>
+      </div>
+      <p class="status" id="copy-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Data -->
+    <section class="card" aria-labelledby="data-h">
+      <h2 id="data-h">Your data stays here</h2>
+      <p class="muted">Everything is stored only in this browser (localStorage). Nothing is
+         uploaded anywhere. Take a JSON backup before switching phones.</p>
+      <div class="btn-row">
+        <button class="btn secondary" id="seed-demo" type="button">Load demo data</button>
+        <button class="btn secondary" id="export-btn" type="button">Export JSON backup</button>
+        <label class="btn secondary" for="import-file">Import backup</label>
+        <input class="visually-hidden" type="file" id="import-file" accept="application/json">
+        <button class="btn ghost" id="clear-btn" type="button">Clear everything</button>
+      </div>
+      <p class="status" id="data-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>
+    Hostel Hisab · Made for hostel rooms, PGs and shared flats in India ·
+    Offline-first PWA · MIT licensed
+  </footer>
+
+  <script src="js/settle.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
